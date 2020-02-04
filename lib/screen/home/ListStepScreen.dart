@@ -12,12 +12,10 @@ class ListStepScreen extends StatefulWidget {
 }
 
 class _ListStepScreenState extends State<ListStepScreen> {
-  AdmobBannerSize bannerSize;
   AdmobInterstitial interstitialAd;
   GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
   @override
   void initState() {
-    bannerSize = AdmobBannerSize.LARGE_BANNER;
     interstitialAd = AdmobInterstitial(
       adUnitId: interUnitId,
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
@@ -226,17 +224,6 @@ class _ListStepScreenState extends State<ListStepScreen> {
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                color: Colors.black,
-              ),
-              alignment: Alignment.bottomCenter,
-              child: AdmobBanner(
-                adUnitId: bannerId,
-                adSize: bannerSize,
               ),
             ),
           ],

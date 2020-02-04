@@ -20,15 +20,18 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoad = false;
   @override
   void initState() {
-    bannerSize = AdmobBannerSize.LARGE_BANNER;
+    bannerSize = AdmobBannerSize.MEDIUM_RECTANGLE;
     interstitialAd = AdmobInterstitial(
       adUnitId: interUnitId,
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-        if (event == AdmobAdEvent.closed) interstitialAd.load();
+        if (event == AdmobAdEvent.closed) {
+          isLoad = false;
+          interstitialAd.load();
+        }
         handleEvent(event, args, 'Interstitial');
       },
     );
-    interstitialAd.load();
+    //interstitialAd.load();
     super.initState();
   }
 
@@ -37,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (event) {
       case AdmobAdEvent.loaded:
         showSnackBar('New Admob $adType Ad loaded!');
+
         break;
       case AdmobAdEvent.opened:
         showSnackBar('Admob $adType Ad opened!');
@@ -99,78 +103,85 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: <Widget>[
           Container(
-            child: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  margin:
-                      EdgeInsets.only(left: width * 0.1, right: width * 0.1),
-                  height: height * 0.3,
-                  width: width * 0.8,
-                  child: Image.asset("assets/images/bgbanner.jpg",
-                      fit: BoxFit.fill),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    if (await interstitialAd.isLoaded) {
-                      interstitialAd.show();
-
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ListStepScreen()));
-                    } else {
-                      showSnackBar("Reward ad is still loading...");
-                    }
-                  },
-                  child: Container(
-                    height: height * 0.1,
-                    width: width * 0.6,
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey,
-                      borderRadius: BorderRadius.circular(32),
-                    ),
-                    child: Center(
-                      child: Text("START",
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    margin:
+                        EdgeInsets.only(left: width * 0.1, right: width * 0.1),
+                    height: height * 0.25,
+                    width: width * 0.8,
+                    child: Image.asset("assets/images/bgbanner.jpg",
+                        fit: BoxFit.fill),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      // setState(() {
+                      //   isLoad = true;
+                      // });
+                      interstitialAd.load();
+                      if (await interstitialAd.isLoaded) {
+                        interstitialAd.show();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ListStepScreen()));
+                      } else {
+                        showSnackBar("Reward ad is still loading...");
+                      }
+                    },
+                    child: Container(
+                      height: height * 0.08,
+                      width: width * 0.6,
+                      decoration: BoxDecoration(
+                        color: Colors.blueGrey,
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Center(
+                        child: Text("START",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 24)),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    await _shareText();
-                  },
-                  child: Container(
-                    height: height * 0.1,
-                    width: width * 0.6,
-                    decoration: BoxDecoration(
-                      color: Colors.blueGrey,
-                      borderRadius: BorderRadius.circular(32),
-                    ),
-                    child: Center(
-                      child: Text("SHARE",
-                          style: TextStyle(color: Colors.white, fontSize: 24)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      await _shareText();
+                    },
+                    child: Container(
+                      height: height * 0.08,
+                      width: width * 0.6,
+                      decoration: BoxDecoration(
+                        color: Colors.blueGrey,
+                        borderRadius: BorderRadius.circular(32),
+                      ),
+                      child: Center(
+                        child: Text("SHARE",
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 24)),
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: height * 0.1),
-                  color: Colors.white,
-                  alignment: Alignment.bottomCenter,
-                  child: AdmobBanner(
-                    adUnitId: bannerId,
-                    adSize: bannerSize,
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                    color: Colors.white,
+                    alignment: Alignment.bottomCenter,
+                    child: AdmobBanner(
+                      adUnitId: bannerId,
+                      adSize: bannerSize,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           isLoad

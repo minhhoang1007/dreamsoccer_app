@@ -1,4 +1,5 @@
 import 'package:admob_flutter/admob_flutter.dart';
+import 'package:dreamsoccer_app/main.dart';
 import 'package:dreamsoccer_app/screen/config/ads.dart';
 import 'package:dreamsoccer_app/screen/drawer/DrawerScreen.dart';
 import 'package:dreamsoccer_app/screen/home/ListStepScreen.dart';
@@ -21,47 +22,45 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     bannerSize = AdmobBannerSize.MEDIUM_RECTANGLE;
+    super.initState();
+    MyApp.platform.invokeMethod("rateAuto");
+  }
+
+  void getAd() async {
+    setState(() {
+      isLoad = true;
+    });
     interstitialAd = AdmobInterstitial(
       adUnitId: interUnitId,
       listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-        if (event == AdmobAdEvent.closed) {
-          isLoad = false;
-          interstitialAd.load();
-        }
         handleEvent(event, args, 'Interstitial');
       },
     );
-    //interstitialAd.load();
-    super.initState();
+    interstitialAd.load();
   }
 
   void handleEvent(
       AdmobAdEvent event, Map<String, dynamic> args, String adType) {
     switch (event) {
       case AdmobAdEvent.loaded:
-        showSnackBar('New Admob $adType Ad loaded!');
-
+        interstitialAd.show();
         break;
       case AdmobAdEvent.opened:
-        showSnackBar('Admob $adType Ad opened!');
         break;
       case AdmobAdEvent.closed:
-        showSnackBar('Admob $adType Ad closed!');
+        isLoad = false;
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ListStepScreen()));
         break;
       case AdmobAdEvent.failedToLoad:
-        showSnackBar('Admob $adType failed to load. :(');
+        isLoad = false;
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ListStepScreen()));
         break;
       case AdmobAdEvent.rewarded:
         break;
       default:
     }
-  }
-
-  void showSnackBar(String content) {
-    scaffoldState.currentState.showSnackBar(SnackBar(
-      content: Text(content),
-      duration: Duration(milliseconds: 1500),
-    ));
   }
 
   Future<void> _shareText() async {
@@ -122,19 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      // setState(() {
-                      //   isLoad = true;
-                      // });
-                      interstitialAd.load();
-                      if (await interstitialAd.isLoaded) {
-                        interstitialAd.show();
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ListStepScreen()));
-                      } else {
-                        showSnackBar("Reward ad is still loading...");
-                      }
+                      getAd();
                     },
                     child: Container(
                       height: height * 0.08,

@@ -1,5 +1,4 @@
 import 'package:dreamsoccer_app/screen/config/ads.dart';
-import 'package:dreamsoccer_app/screen/drawer/DrawerScreen.dart';
 import 'package:dreamsoccer_app/screen/home/ListStepDetail.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 import 'package:flutter/material.dart';
@@ -14,45 +13,57 @@ class ListStepScreen extends StatefulWidget {
 class _ListStepScreenState extends State<ListStepScreen> {
   AdmobInterstitial interstitialAd;
   GlobalKey<ScaffoldState> scaffoldState = GlobalKey();
+  bool isLoad = false;
   @override
   void initState() {
-    interstitialAd = AdmobInterstitial(
-      adUnitId: interUnitId,
-      listener: (AdmobAdEvent event, Map<String, dynamic> args) {
-        if (event == AdmobAdEvent.closed) interstitialAd.load();
-        handleEvent(event, args, 'Interstitial');
-      },
-    );
-    interstitialAd.load();
     super.initState();
   }
 
-  void handleEvent(
-      AdmobAdEvent event, Map<String, dynamic> args, String adType) {
+  void getAd(title, namefile) async {
+    setState(() {
+      isLoad = true;
+    });
+    interstitialAd = AdmobInterstitial(
+      adUnitId: interUnitId,
+      listener: (AdmobAdEvent event, Map<String, dynamic> args) {
+        handleEvent(event, args, 'Interstitial', title, namefile);
+      },
+    );
+    interstitialAd.load();
+  }
+
+  void handleEvent(AdmobAdEvent event, Map<String, dynamic> args, String adType,
+      title, namefile) {
     switch (event) {
       case AdmobAdEvent.loaded:
-        showSnackBar('New Admob $adType Ad loaded!');
+        interstitialAd.show();
         break;
       case AdmobAdEvent.opened:
-        showSnackBar('Admob $adType Ad opened!');
         break;
       case AdmobAdEvent.closed:
-        showSnackBar('Admob $adType Ad closed!');
+        isLoad = false;
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ListStepDetail(
+                      title: title,
+                      namefile: namefile,
+                    )));
         break;
       case AdmobAdEvent.failedToLoad:
-        showSnackBar('Admob $adType failed to load. :(');
+        isLoad = false;
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ListStepDetail(
+                      title: title,
+                      namefile: namefile,
+                    )));
         break;
       case AdmobAdEvent.rewarded:
         break;
       default:
     }
-  }
-
-  void showSnackBar(String content) {
-    scaffoldState.currentState.showSnackBar(SnackBar(
-      content: Text(content),
-      duration: Duration(milliseconds: 1500),
-    ));
   }
 
   @override
@@ -67,167 +78,136 @@ class _ListStepScreenState extends State<ListStepScreen> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Container(
-        margin: EdgeInsets.only(left: width * 0.1, right: width * 0.1),
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              onTap: () async {
-                if (await interstitialAd.isLoaded) {
-                  interstitialAd.show();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ListStepDetail(
-                                title: "STEP 1-- About Dream League Games",
-                                namefile: "files/step1.html",
-                              )));
-                } else {
-                  showSnackBar("Reward ad is still loading...");
-                }
-              },
-              child: Container(
-                height: height * 0.1,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(32),
+      body: Stack(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(left: width * 0.1, right: width * 0.1),
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: 20,
                 ),
-                child: Center(
-                  child: Text("STEP 1-- About Dream League Games",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () {
+                    getAd("STEP 1-- About Dream League Games",
+                        "files/step1.html");
+                  },
+                  child: Container(
+                    height: height * 0.1,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text("STEP 1-- About Dream League Games",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            GestureDetector(
-              onTap: () async {
-                if (await interstitialAd.isLoaded) {
-                  interstitialAd.show();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ListStepDetail(
-                                title: "STEP 2-- About Dream League Games",
-                                namefile: "files/step2.html",
-                              )));
-                } else {
-                  showSnackBar("Reward ad is still loading...");
-                }
-              },
-              child: Container(
-                height: height * 0.1,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(32),
+                SizedBox(
+                  height: 10,
                 ),
-                child: Center(
-                  child: Text("STEP 2-- Dream League",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () {
+                    getAd("STEP 2-- Dream League", "files/step2.html");
+                  },
+                  child: Container(
+                    height: height * 0.1,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text("STEP 2-- Dream League",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            GestureDetector(
-              onTap: () async {
-                if (await interstitialAd.isLoaded) {
-                  interstitialAd.show();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ListStepDetail(
-                                title: "STEP 3-- About Dream League Games",
-                                namefile: "files/step3.html",
-                              )));
-                } else {
-                  showSnackBar("Reward ad is still loading...");
-                }
-              },
-              child: Container(
-                height: height * 0.1,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(32),
+                SizedBox(
+                  height: 10,
                 ),
-                child: Center(
-                  child: Text("STEP 3-- Dream League",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () {
+                    getAd("STEP 3-- Dream League", "files/step3.html");
+                  },
+                  child: Container(
+                    height: height * 0.1,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text("STEP 3-- Dream League",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            GestureDetector(
-              onTap: () async {
-                if (await interstitialAd.isLoaded) {
-                  interstitialAd.show();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ListStepDetail(
-                                title: "STEP 4-- About Dream League Games",
-                                namefile: "files/step4.html",
-                              )));
-                } else {
-                  showSnackBar("Reward ad is still loading...");
-                }
-              },
-              child: Container(
-                height: height * 0.1,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(32),
+                SizedBox(
+                  height: 10,
                 ),
-                child: Center(
-                  child: Text("STEP 4-- Dream League",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () {
+                    getAd("STEP 4-- Dream League", "files/step4.html");
+                  },
+                  child: Container(
+                    height: height * 0.1,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text("STEP 4-- Dream League",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            GestureDetector(
-              onTap: () async {
-                if (await interstitialAd.isLoaded) {
-                  interstitialAd.show();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ListStepDetail(
-                                title: "STEP 5-- About Dream League Games",
-                                namefile: "files/step5.html",
-                              )));
-                } else {
-                  showSnackBar("Reward ad is still loading...");
-                }
-              },
-              child: Container(
-                height: height * 0.1,
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                  borderRadius: BorderRadius.circular(32),
+                SizedBox(
+                  height: 10,
                 ),
-                child: Center(
-                  child: Text("STEP 5-- Dream League",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                GestureDetector(
+                  onTap: () {
+                    getAd("STEP 5-- Dream League", "files/step5.html");
+                  },
+                  child: Container(
+                    height: height * 0.1,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey,
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    child: Center(
+                      child: Text("STEP 5-- Dream League",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+          isLoad
+              ? Positioned(
+                  child: Container(
+                    color: Colors.transparent,
+                    height: MediaQuery.of(context).size.height,
+                    width: double.infinity,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                )
+              : Container(
+                  height: 0,
+                ),
+        ],
       ),
     );
   }
